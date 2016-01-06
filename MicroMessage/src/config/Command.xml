@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dao.InterfaceCommand">
+
+  <resultMap type="bean.Command" id="CommandResult">
+    <id column="C_ID" jdbcType="INTEGER" property="id"/>
+    <result column="CNAME" jdbcType="VARCHAR" property="cname"/>
+    <result column="DESCRIPTION" jdbcType="VARCHAR" property="description"/>
+    <collection property="contentList" resultMap="dao.InterfaceContent.ContentResult"></collection>
+  </resultMap>
+  
+<!-- 前端页面的查询sql语句 -->
+  <select id="queryCommandList"  parameterType="bean.Command"  resultMap="CommandResult">
+      select command.ID C_ID,command.CNAME,command.DESCRIPTION,content.ID,content.CONTENT,content.MESSAGE_ID
+      from COMMAND command  left join COMMAND_CONTENT content on command.ID = content.MESSAGE_ID
+      where 1=1
+        <if test="cname !=null and !&quot;&quot;.equals(cname.trim())">
+            and command.CNAME = #{cname}
+        </if>
+        <if test="description!=null and !&quot;&quot;.equals(description.trim())">
+            and command.DESCRIPTION like '%' #{description} '%'
+        </if>
+  </select>
+ 
+  <!-- 进行分页显示的sql语句 -->
+  <select id="getCommandByPage"  parameterType="java.util.Map"  resultMap="CommandResult">
+      select command.ID C_ID,command.CNAME,command.DESCRIPTION,content.ID,content.CONTENT,content.MESSAGE_ID
+      from COMMAND command  left join COMMAND_CONTENT content on command.ID = content.MESSAGE_ID
+      <where>
+          <if test="cname !=null and !&quot;&quot;.equals(cname.trim())">
+               and command.CNAME = #{command.cname}
+          </if>
+          <if test="description!=null and !&quot;&quot;.equals(description.trim())">
+               and command.DESCRIPTION like '%' #{command.description} '%'
+          </if>
+       </where>
+       GROUP BY C_ID
+       ORDER BY C_ID ASC
+
+  </select>
+  
+   <!--删除的sql语句 --> 
+  <delete id="delete" parameterType="java.util.List">
+     DELETE FROM command WHERE ID in (
+     <foreach collection="list" item="command" separator=",">
+     #{command.id}
+     </foreach>
+     )
+  </delete>
+  
+  <!-- 插入的sql语句 -->
+  <insert id="insertOne" parameterType="bean.Command" useGeneratedKeys="true" keyProperty="id">
+  INSERT INTO command ( CNAME,DESCRIPTION) VALUES (#{cname},#{description})
+  </insert>
+</mapper>

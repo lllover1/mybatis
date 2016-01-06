@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dao.InterfaceContent">
+
+  <resultMap type="bean.CommandContent" id="ContentResult">
+    <id column="ID" jdbcType="INTEGER" property="id"/>
+    <result column="CONTENT" jdbcType="VARCHAR" property="content"/>
+    <result column="MESSAGE_ID" jdbcType="INTEGER" property="messageId"/>
+    <association property="command" resultMap="dao.InterfaceCommand.CommandResult"></association>
+  </resultMap>
+  <insert id="insertContent" parameterType="java.util.List">
+  INSERT INTO command_content (content,message_id) VALUES
+  <foreach collection="list" item="content" separator=",">
+  (#{content.content},#{content.messageId})
+  </foreach>
+  </insert>
+  
+</mapper>
